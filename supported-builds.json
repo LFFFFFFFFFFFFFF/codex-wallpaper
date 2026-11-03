@@ -1,0 +1,16 @@
+{
+  "format": "skinforge.codex-wallpaper.compatibility",
+  "version": 1,
+  "builds": {
+    "26.1027.51404": {
+      "platform": "win32",
+      "packageVersion": "26.1027.6604.0",
+      "archiveSha256": "faacb124f33b792bd2c88fbe8b1215fb6869d81b145a919260e16ac11d9c1451",
+      "executableSha256": "ff17468adb9a25ef56e02a0d610273a060bd395bb564fb47d455367fe87ea9f0",
+      "entry": ".vite/build/early-bootstrap.js",
+      "preload": ".vite/build/preload.js",
+      "ipcFile": ".vite/build/early-bootstrap-824-e56448c7829c41c2.js",
+      "ipcLiteralOccurrences": 2
+    }
+  }
+}

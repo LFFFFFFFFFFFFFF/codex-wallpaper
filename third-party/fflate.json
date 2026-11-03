@@ -1,0 +1,9 @@
+{
+  "name": "fflate",
+  "version": "0.8.3",
+  "license": "MIT",
+  "source": "https://github.com/101arrowz/fflate",
+  "module": "lib/browser.cjs",
+  "vendoredSha256": "cbe7f75f83e0ca95ec7f3854fcdc8f854f488485d0ecf03c3a0a7ff29765c690",
+  "use": "ZIP stored media share packages; no network code"
+}

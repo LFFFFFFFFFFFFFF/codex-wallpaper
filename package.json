@@ -1,0 +1,39 @@
+{
+  "name": "skinforge-codex-wallpaper",
+  "version": "0.3.6",
+  "private": true,
+  "description": "Unofficial, version-pinned local wallpaper adapter for the Codex Windows desktop app",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "check": "node scripts/check-release.mjs && node scripts/workshop.mjs validate-catalog --file community/catalog.json",
+    "build:local": "node scripts/build.mjs",
+    "release:source": "node scripts/export-source.mjs"
+  },
+  "files": [
+    "src/",
+    "lib/",
+    "scripts/",
+    "launcher/",
+    "tests/",
+    "docs/",
+    "community/",
+    "third-party/",
+    "LICENSE",
+    "README.md",
+    "README.en.md",
+    "NOTICE.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md",
+    "CHANGELOG.md",
+    "supported-builds.json",
+    "release-files.json",
+    ".github/",
+    ".gitignore",
+    ".gitattributes"
+  ]
+}

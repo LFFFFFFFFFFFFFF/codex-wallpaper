@@ -1,0 +1,46 @@
+# Generated local runtime, profiles, imported media, diagnostics and exports
+.local/
+.local-*/
+.native/
+we-projects/
+.release/
+runtime/
+profile*/
+wallpaper-data/
+workshop/
+*.sfwallpaper
+wallpapers/
+verification/
+inspection/
+node_modules/
+coverage/
+.env
+.env.*
+!.env.example
+*.exe
+*.dll
+*.asar
+*.asar.*
+*.pak
+*.bin
+*.mp4
+*.webm
+*.glb
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.gif
+*.zip
+*.tgz
+*.log
+*.sqlite*
+auth.json
+Local State
+Cookies
+Login Data
+last-launch.json
+manifest.json
+*.local.json
+.DS_Store
+Thumbs.db
