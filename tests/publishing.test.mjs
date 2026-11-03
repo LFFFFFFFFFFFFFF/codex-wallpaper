@@ -63,3 +63,7 @@ test('main publication requires a window-owned expiring confirmation; preview st
  await assert.rejects(handle({...w,id:2},{action:'workshop:publish',token:prepared.publication.token,rightsConfirmed:true}));await assert.rejects(handle(w,{action:'workshop:publish',token:prepared.publication.token}));assert.equal(calls,0);
  await handle(w,{action:'workshop:publish',token:prepared.publication.token,rightsConfirmed:true});assert.equal(calls,1);assert.equal((await fs.readdir(store.root)).filter(x=>x.startsWith('.publish-')).length,0);await assert.rejects(handle(w,{action:'workshop:publish',token:prepared.publication.token,rightsConfirmed:true}));handle.close();
 });
+
+test('catalog refresh bypasses CDN cache without accepting caller query strings',async()=>{
+ let requested;const b=await community.getBytes(protocol.DEFAULT_CATALOG,1024,async(url,options)=>{requested=url;assert.equal(options.cache,'no-store');return new Response('fresh');},{fresh:true});assert.equal(b.toString(),'fresh');assert.match(new URL(requested).search,/^\?_sfw_refresh=\d+$/);assert.throws(()=>community.httpsUrl(protocol.DEFAULT_CATALOG+'?token=secret'));
+});

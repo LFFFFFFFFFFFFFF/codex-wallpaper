@@ -53,9 +53,9 @@ The builder appends adapter code and updates the cloned EXE's ASAR header digest
 
 ## Release scope and status
 
-This release covers the wallpaper adapter, launchers, capture source and local workshop. Legacy `.codexscene` editing, companions, 3D, account/upload servers and the complete SkinForge editor are outside its scope. The community catalog starts empty.
+This release covers the wallpaper adapter, launchers, capture source and local workshop. Legacy `.codexscene` editing, companions, 3D, account/upload servers and the complete SkinForge editor are outside its scope. An original CC0 community demo exercises the publishing workflow.
 
-There are 29 automated tests. Native verification covers selected workflows and one controlled WE pause/resume with temporary focus emulation and Windows z-order sampling. Video figures are bounded samples. Sustained playback, every window transition and complete signed-in workflows remain unverified. See [validation scope](docs/VALIDATION.md).
+There are 36 automated tests. Native verification covers selected workflows and one controlled WE pause/resume with temporary focus emulation and Windows z-order sampling. Video figures are bounded samples. Sustained playback, every window transition and complete signed-in workflows remain unverified. See [validation scope](docs/VALIDATION.md).
 
 ## Publish source
 

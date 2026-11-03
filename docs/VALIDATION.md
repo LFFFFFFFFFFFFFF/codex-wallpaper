@@ -1,12 +1,26 @@
-# Validation scope for 0.3.6
+# Validation scope for 0.4.0
 
 Prepared on 2026-11-03 for Codex 26.1027.51404 on Windows x64. Private screenshots, profiles, application archives and media are excluded from the release.
 
 ## Automated checks
 
-The 29 tests cover archive preservation/integrity, preload boundaries, source/output separation, release exclusions, workshop roundtrip/validation/favorites, worker flows, catalog/download validation, media-cache identity and limits, WE event contracts, native-window cleanup, reading defaults and text contrast.
+The 36 tests cover archive preservation/integrity, preload boundaries, source/output separation, release exclusions, workshop roundtrip/validation/favorites, worker flows, catalog/download validation, media-cache identity and limits, WE event contracts, native-window cleanup, reading defaults and text contrast.
 
-Run `npm test` and `npm run check`. Secret scanning is heuristic and should be combined with reviewing the staged file list. The prepared GitHub Actions workflow has not run in the eventual remote repository.
+Run `npm test` and `npm run check`. Secret scanning is heuristic and should be combined with reviewing the staged file list. GitHub Windows source checks passed for the published source. One initial run failed because the moderation script was missing from the commit; it was then included and the remote rerun passed.
+
+## Community workflow in 0.4.0
+
+Seven new tests cover default/disabled catalogs, deterministic ZIP bytes, account changes, private repositories, draft retries, uncertain issue creation, approval permissions, ownership, hashes, covers and window-scoped consent tokens. Network/CLI are mocked in those unit tests. The package/store worker test uses real temporary files.
+
+The native installed Electron client reached the real publication confirmation using the existing local profile. It uploaded one original procedural CC0 static demo to the authenticated user's public `codex-wallpaper-works` repository and created [submission #1](https://github.com/LFFFFFFFFFFFFFF/codex-wallpaper/issues/1). An initial real attempt stopped at the draft asset URL check: GitHub uses an untagged draft URL. Verification was corrected to check size/digest before publication and the final URL afterward; retry reused the existing draft assets. This is a real upload, not a mock, and no borrowed wallpaper was redistributed.
+
+A local rebuild initially failed because normal window close left the test process in the background. Only that exact test runtime's background processes were stopped before replacement; the official Codex processes were untouched. A second attempt encountered the retained temporary output, then a fresh unique output completed. The original 0.3.6 EXE/ASAR and failure artifacts were retained privately. No claim of a clean first attempt is made.
+
+The actual maintainer-label workflow passed ([run 41572248785](https://github.com/LFFFFFFFFFFFFFF/codex-wallpaper/actions/runs/41572248785)), committed the verified catalog and closed the issue. Native refresh displayed the remote work; selecting Download fetched it through the real main/worker path and reused the existing local copy. An additional anonymous network fetch imported the identical SHA-checked pack into a fresh, empty store (`reused: false`). The 480px remote cover was decoded in the native client with temporary focus emulation. No demo was applied to the user's wallpaper.
+
+The first refresh immediately after approval saw the CDN's previous empty catalog. Refresh now adds a generated numeric cache-busting parameter after validating the configured URL, requests no-store/no-cache and still rejects caller-supplied queries/credentials. That behavior has a dedicated test and an actual fresh network read. Network failures remain possible and are shown as retryable Chinese errors.
+
+No new 4K endurance, every creator-account permission variation, mobile UI or complete signed-in Codex workflow was tested. These checks establish this GitHub-backed media workflow, not parity with Steam Workshop or a hosted social platform. A single current account was used for the native upload; account-switch/private-repository rejection is unit tested.
 
 ## Native and browser evidence
 
