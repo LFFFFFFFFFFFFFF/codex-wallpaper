@@ -1,5 +1,23 @@
 {
   "format": "skinforge.wallpaper-catalog",
   "version": 1,
-  "items": []
+  "items": [
+    {
+      "title": "Blue Hour · Community Demo",
+      "author": "Codex Wallpaper contributors",
+      "description": "Original procedural moonlight graphic demonstrating the community publishing workflow. Static image; no borrowed artwork.",
+      "tags": [
+        "demo",
+        "night",
+        "original"
+      ],
+      "license": "CC0-1.0",
+      "id": "de0fd453c3513afe8e1f7c32bbb12a570140bec3fd88add7b4c6d6ed3fc1253b",
+      "url": "https://github.com/LFFFFFFFFFFFFFF/codex-wallpaper-works/releases/download/wallpaper-de0fd453c3513afe8e1f7c32bbb12a570140bec3fd88add7b4c6d6ed3fc1253b/wallpaper.sfwallpaper",
+      "sha256": "bf695515c5793d485d31d51a0dd0370f18fc4e166dfd10fc4a2dcb069bbec2f8",
+      "bytes": 184211,
+      "kind": "image",
+      "coverUrl": "https://github.com/LFFFFFFFFFFFFFF/codex-wallpaper-works/releases/download/wallpaper-de0fd453c3513afe8e1f7c32bbb12a570140bec3fd88add7b4c6d6ed3fc1253b/cover.png"
+    }
+  ]
 }
