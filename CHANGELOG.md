@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.0
+
+- Default public community catalog; in-app GitHub CLI publishing with explicit consent.
+- Draft upload, asset digest validation and retry reconciliation.
+- Maintainer-gated Issues/Actions catalog publishing; no embedded credentials.
+- Deterministic package ZIP timestamps for safe retries.
+
+
 ## 0.3.6
 
 - Keep the owned WE source window behind the client after resume, including unchanged geometry.

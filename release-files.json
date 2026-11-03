@@ -65,5 +65,12 @@
   "docs/PERFORMANCE.md",
   "src/wallpaper-appearance.cjs",
   "tests/appearance.test.mjs",
-  "docs/RELEASE-v0.3.6.md"
+  "docs/RELEASE-v0.3.6.md",
+  "src/workshop-submission.cjs",
+  "src/workshop-github.cjs",
+  "scripts/review-submission.mjs",
+  ".github/workflows/workshop-review.yml",
+  ".github/ISSUE_TEMPLATE/workshop.yml",
+  "tests/publishing.test.mjs",
+  "docs/RELEASE-v0.4.0.md"
 ]

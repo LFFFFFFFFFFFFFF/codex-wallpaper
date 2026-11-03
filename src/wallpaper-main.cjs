@@ -1,5 +1,5 @@
 'use strict';
-const {app,ipcMain,BrowserWindow,dialog}=require('electron');
+const {app,ipcMain,BrowserWindow,dialog,shell}=require('electron');
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 const appearance=require('./wallpaper-appearance.cjs');
 const CHANNEL='skinforge-latest-wallpaper-v1';
@@ -15,7 +15,8 @@ function state(){const s=load();if(s.we)return {...s,kind:'we',url:null,title:s.
 function owner(e){try{const w=BrowserWindow.fromWebContents(e.sender),u=new URL(e.sender.getURL());return w&&e.senderFrame===e.sender.mainFrame&&u.protocol==='app:'&&u.host==='-'&&u.pathname==='/index.html'?w:null;}catch{return null;}}
 const pending=new Set();
 const commit=async(s,w)=>{await video.prepare(s);if(w?.isDestroyed())throw Error('窗口已关闭，操作未提交');save(s);return state()};
-const workshop=require('./workshop-main.cjs')({root:ROOT,dialog,load,save,state,commit});
+const workshop=require('./workshop-main.cjs')({root:ROOT,dialog,load,save,state,commit,openExternal:url=>shell.openExternal(url)});
+app.on('before-quit',()=>workshop.close());
 const we=require('./we-main.cjs')({electron:require('electron'),root:ROOT,load,save,state,commit});
 let queue=Promise.resolve();
 async function handle(e,r){
@@ -42,6 +43,6 @@ async function handle(e,r){
 }
 ipcMain.handle(CHANNEL,(e,r)=>{
  // Frame ACK/mouse/diagnostics must never wait behind a video conversion.
- if(r?.action==='we:runtime'||r?.action==='we:metadata')return handle(e,r);
+ if(r?.action==='we:runtime'||r?.action==='we:metadata'||['workshop:publish-prepare','workshop:publish','workshop:publish-cancel','workshop:github-cli','workshop:open-community'].includes(r?.action))return handle(e,r);
  const next=queue.catch(()=>{}).then(()=>handle(e,r));queue=next;return next;
 });

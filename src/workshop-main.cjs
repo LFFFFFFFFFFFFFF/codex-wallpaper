@@ -1,17 +1,34 @@
 'use strict';
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto'),{Worker}=require('node:worker_threads');
 const {Workshop}=require('./workshop-store.cjs'),pack=require('./workshop-package.cjs'),community=require('./workshop-community.cjs');
-module.exports=function setup({root,dialog,load,save,state,commit=async s=>{save(s);return state()}}){
- const store=new Workshop(path.join(root,'workshop')),covers=new Map();let busy=false,remote=[];
+module.exports=function setup({root,dialog,load,save,state,openExternal=async()=>{},publisherFactory=require('./workshop-github.cjs').createPublisher,commit=async s=>{save(s);return state()}}){
+ const store=new Workshop(path.join(root,'workshop')),covers=new Map();let busy=false,remote=[];const publisher=publisherFactory({root:store.root}),pending=new Map();
+ const protocol=require('./workshop-submission.cjs');
+ function discard(token){const p=pending.get(token);if(!p)return;pending.delete(token);if(path.dirname(p.stage)===store.root&&/^\.publish-[a-f0-9-]+$/.test(path.basename(p.stage)))fs.rmSync(p.stage,{recursive:true,force:true});}
+ function expire(){for(const [token,p]of pending)if(p.expires<Date.now())discard(token);}
  const url=file=>file?'app://fs/@fs/'+file.replaceAll('\\','/'):null;
  const alive=w=>{if(w.isDestroyed())throw Error('窗口已关闭，操作未提交');};
- const list=()=>{const saved=store.list();return {ok:true,catalogUrl:saved.catalogUrl,items:saved.items.map(r=>({id:r.id,...pack.metaOnly(r.manifest),kind:r.manifest.media.mime.startsWith('video/')?'video':'image',bytes:r.manifest.media.bytes,url:url(r.mediaFile),coverUrl:url(r.coverFile)||(r.manifest.media.mime.startsWith('image/')&&!r.manifest.media.file.endsWith('.gif')?url(r.mediaFile):null),favorite:r.favorite})),activeId:load().workshopId||null};};
+ const list=()=>{const saved=store.list();return {ok:true,catalogUrl:saved.catalogUrl,items:saved.items.map(r=>({id:r.id,...pack.metaOnly(r.manifest),kind:r.manifest.media.mime.startsWith('video/')?'video':'image',bytes:r.manifest.media.bytes,url:url(r.mediaFile),coverUrl:url(r.coverFile)||(r.manifest.media.mime.startsWith('image/')&&!r.manifest.media.file.endsWith('.gif')?url(r.mediaFile):null),favorite:r.favorite})),activeId:load().workshopId||null,defaultCatalogUrl:protocol.DEFAULT_CATALOG,communityUrl:'https://github.com/'+protocol.COMMUNITY+'/issues'};};
  function job(data){return new Promise((resolve,reject)=>{let received=false;const worker=new Worker(path.join(__dirname,'workshop-worker.cjs'),{workerData:{root:store.root,...data}});const timer=setTimeout(()=>{worker.terminate();reject(Error('工坊任务超时，请重试'));},90000);worker.once('message',result=>{received=true;clearTimeout(timer);result.ok?resolve(result):reject(Error(result.error));});worker.once('error',e=>{clearTimeout(timer);reject(e);});worker.once('exit',()=>{clearTimeout(timer);if(!received)reject(Error('工坊任务未完成'));});});}
  async function choose(w,filters,title){const p=await dialog.showOpenDialog(w,{title,properties:['openFile'],filters});alive(w);return p.canceled?null:fs.realpathSync(p.filePaths[0]);}
- return async function handle(w,r){
+ const handle=async function(w,r){
   if(r.action==='workshop:list')return list();
   if(busy)throw Error('工坊正在处理文件，请稍候');busy=true;
   try{
+   expire();
+   if(r.action==='workshop:github-cli'){const file=await choose(w,[{name:'GitHub CLI',extensions:['exe']}],'选择官方GitHub CLI（gh.exe）');return file?{ok:true,...await publisher.configure(file)}:{ok:true,canceled:true};}
+   if(r.action==='workshop:publish-prepare'){
+    for(const [token,p]of pending)if(p.windowId===w.id)discard(token);
+    const account=await publisher.account();alive(w);const stage=path.join(store.root,'.publish-'+crypto.randomUUID()),token=crypto.randomUUID();fs.mkdirSync(stage);
+    pending.set(token,{stage,windowId:w.id,expires:Date.now()+600000});
+    try{const prepared=await job({action:'prepare-publish',id:r.id,stage});alive(w);pending.set(token,{stage,prepared,login:account.login,windowId:w.id,expires:Date.now()+600000});return {ok:true,publication:{token,login:account.login,repository:account.login+'/'+protocol.CREATOR_REPO,title:prepared.meta.title,license:prepared.meta.license,bytes:prepared.bytes},message:'请核对公开发布信息并确认素材分发权利'};}catch(e){discard(token);throw e;}
+   }
+   if(r.action==='workshop:publish-cancel'){const p=pending.get(r.token);if(p&&p.windowId===w.id)discard(r.token);return {ok:true,message:'已取消发布'};}
+   if(r.action==='workshop:publish'){
+    const p=pending.get(r.token);if(!p||p.windowId!==w.id||!p.prepared||r.rightsConfirmed!==true)throw Error('请重新准备发布并确认素材分发权利');alive(w);
+    try{const result=await publisher.publish(p.prepared,p.login);return {ok:true,...result};}finally{discard(r.token);}
+   }
+   if(r.action==='workshop:open-community'){await openExternal('https://github.com/'+protocol.COMMUNITY+'/issues');return {ok:true,message:'已打开投稿与审核记录'};}
    if(r.action==='workshop:import'){const file=await choose(w,[{name:'壁纸分享包',extensions:['sfwallpaper']}],'导入壁纸分享包');if(!file)return {ok:true,canceled:true};const result=await job({action:'import',file});return {...list(),id:result.id,message:result.reused?'已存在，复用本机作品':'作品已导入；选择预览后可应用'};}
    if(r.action==='workshop:cover'){const file=await choose(w,[{name:'封面图片',extensions:['png','jpg','jpeg','webp']}],'选择作品封面（4MiB以内）');if(!file)return {ok:true,canceled:true};const st=fs.statSync(file);if(!st.isFile()||st.size>pack.COVER)throw Error('封面超过4MiB');const token=crypto.randomUUID();covers.set(w.id,{token,file,expires:Date.now()+600000});return {ok:true,token,name:path.basename(file)};}
    if(r.action==='workshop:create'){const meta=pack.metadata(r.meta),s=load();if(!s.file)throw Error('请先在壁纸设置中选择视频或图片');let cover=null;if(r.coverToken){const c=covers.get(w.id);if(!c||c.token!==r.coverToken||c.expires<Date.now())throw Error('封面选择已失效，请重新选择');cover=c.file;}const result=await job({action:'create',media:s.file,meta,cover});covers.delete(w.id);return {...list(),id:result.id,message:'作品已保存到本机工坊，可导出分享'};}
@@ -24,4 +41,5 @@ module.exports=function setup({root,dialog,load,save,state,commit=async s=>{save
    throw Error('未知工坊操作');
   }finally{busy=false;}
  };
+ handle.close=()=>{publisher.close();for(const token of pending.keys())discard(token);};return handle;
 };

@@ -1,0 +1,33 @@
+name: Review workshop submission
+on:
+  issues:
+    types: [labeled]
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: Reviewed submission issue number (must already have workshop-approved label)
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: workshop-issue-${{ github.event.issue.number || inputs.issue_number }}
+  cancel-in-progress: false
+jobs:
+  publish:
+    if: github.repository == 'LFFFFFFFFFFFFFF/codex-wallpaper' && (github.event_name == 'workflow_dispatch' || github.event.label.name == 'workshop-approved')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - run: node scripts/review-submission.mjs
+        env:
+          GH_TOKEN: ${{ github.token }}

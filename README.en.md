@@ -2,7 +2,7 @@
 
 [中文](README.md)
 
-An unofficial, experimental wallpaper adapter for Windows Codex. Version **0.3.6** is prepared as a prerelease. Build a local copy from your own installation, then select local media or a Wallpaper Engine project.
+An unofficial, experimental wallpaper adapter for Windows Codex. Version **0.4.0** is prepared as a prerelease. Build a local copy from your own installation, then select local media or a Wallpaper Engine project.
 
 ## Features
 
@@ -10,7 +10,7 @@ An unofficial, experimental wallpaper adapter for Windows Codex. Version **0.3.6
 - Message reading backgrounds, interface opacity and configurable text/link colors.
 - Cached 720p/30 performance and 1080p/30 balanced videos, with original-video selection and source/audio preservation.
 - Local workshop with previews, search, favorites, explicit apply and `.sfwallpaper` import/export.
-- An optional, manually configured GitHub community catalog and checked package downloads.
+- A default public GitHub catalog, in-app upload/submission through GitHub CLI, maintainer review and verified downloads.
 - Local WE discovery, native scene capture, isolated web wallpapers, mouse interaction, supported properties and diagnostics.
 
 ## Requirements
@@ -67,3 +67,7 @@ npm run release:source
 The source ZIP follows `release-files.json`. Generated runtimes, account data, media, models and private diagnostics are excluded. Follow the [publishing guide](docs/PUBLISHING.md).
 
 The adapter code uses [MIT](LICENSE). See [NOTICE](NOTICE.md) for third-party scope. This independent project claims no OpenAI affiliation or endorsement.
+
+## GitHub community publishing
+
+The workshop now defaults to the public catalog. Select a local work and choose Publish to community. Install the official GitHub CLI and run `gh auth login` first; the app reuses its credential store without reading a token. An explicit public-sharing confirmation precedes upload to your own public `codex-wallpaper-works` repository and an issue submission to this community. A maintainer must review the content and apply `workshop-approved`; Actions validates the pack and updates the catalog. Existing player fixes are retained. See [workflow details](docs/WORKSHOP.md).
