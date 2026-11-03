@@ -42,8 +42,9 @@ function createPublisher({root,runner=createRunner()}){
    }
    release=await api(file,`${base}/releases/${release.id}`);
    const assetBase=protocol.releasePath(login,stage.id);
-   for(const asset of assets){const r=release.assets?.find(a=>a.name===asset.name);if(!r||r.size!==asset.bytes||r.digest!=='sha256:'+asset.sha256||r.browser_download_url!==assetBase+'/'+asset.name)throw Error('上传未通过GitHub大小与摘要校验，请重试');}
-   if(release.draft)await api(file,`${base}/releases/${release.id}`,'PATCH',{draft:false});uploaded=true;
+   for(const asset of assets){const r=release.assets?.find(a=>a.name===asset.name);if(!r||r.size!==asset.bytes||r.digest!=='sha256:'+asset.sha256||(!release.draft&&r.browser_download_url!==assetBase+'/'+asset.name))throw Error('上传未通过GitHub大小与摘要校验，请重试');}
+   if(release.draft)release=await api(file,`${base}/releases/${release.id}`,'PATCH',{draft:false});uploaded=true;
+   for(const asset of assets){const r=release.assets?.find(a=>a.name===asset.name);if(!r||r.browser_download_url!==assetBase+'/'+asset.name)throw Error('公开后的下载地址尚未确认，请重试');}
    const value=protocol.submission({format:'skinforge.wallpaper-submission',version:1,id:stage.id,url:assetBase+'/wallpaper.sfwallpaper',sha256:stage.sha256,bytes:stage.bytes,rightsConfirmed:true,...(stage.cover?{coverUrl:assetBase+'/'+stage.cover.name}:{})},login);
    let existing;
    // Deterministic release IDs plus issue reconciliation make retries safe after an uncertain response.

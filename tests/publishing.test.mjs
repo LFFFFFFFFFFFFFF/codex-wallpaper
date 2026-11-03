@@ -20,7 +20,7 @@ function fakeGitHub(s){
   else if(endpoint.includes('/releases/tags/')){if(!state.release||state.release.draft)throw notFound();result=state.release;}
   else if(endpoint.includes('/releases?'))result=state.release?[state.release]:[];
   else if(endpoint.endsWith('/releases')){state.release={id:12,tag_name:body.tag_name,draft:true,assets:[]};result=state.release;}
-  else if(endpoint.endsWith('/releases/12')){if(method==='PATCH')state.release.draft=false;result=state.release;}
+  else if(endpoint.endsWith('/releases/12')){if(method==='PATCH'){state.release.draft=false;for(const a of state.release.assets)a.browser_download_url=protocol.releasePath('artist',s.id)+'/'+a.name;}result=state.release;}
   else if(endpoint.includes('/issues?'))result=state.issues;
   else if(endpoint.endsWith('/issues')){const i={number:4,html_url:`https://github.com/${protocol.COMMUNITY}/issues/4`,body:body.body};state.issues.push(i);if(state.failIssue){state.failIssue=false;throw Error('HTTP 500 after issue creation');}result=i;}
   else throw Error('Unexpected endpoint '+endpoint);
@@ -42,7 +42,7 @@ test('draft release retry reuses verified assets; private repository, account sw
  const s=await stage(),f=fakeGitHub(s),pub=createPublisher({root:s.root,runner:f.runner});
  f.state.account='other';await assert.rejects(pub.publish(s,'artist'),/账号已切换/);assert.equal(f.state.repo,null);f.state.account='artist';
  f.state.repo={owner:{login:'artist'},private:true};await assert.rejects(pub.publish(s,'artist'),/公开仓库/);
- f.state.repo.private=false;f.state.release={id:12,tag_name:'wallpaper-'+s.id,draft:true,assets:[{name:'wallpaper.sfwallpaper',size:s.bytes,digest:'sha256:'+s.sha256,browser_download_url:protocol.releasePath('artist',s.id)+'/wallpaper.sfwallpaper'}]};
+ f.state.repo.private=false;f.state.release={id:12,tag_name:'wallpaper-'+s.id,draft:true,assets:[{name:'wallpaper.sfwallpaper',size:s.bytes,digest:'sha256:'+s.sha256,browser_download_url:'https://github.com/artist/codex-wallpaper-works/releases/download/untagged-fixture/wallpaper.sfwallpaper'}]};
  await pub.publish(s,'artist');assert.equal(f.state.calls.filter(x=>x[0]==='release').length,0);
  f.state.release.assets[0].digest='sha256:'+'0'.repeat(64);await assert.rejects(pub.publish(s,'artist'),/不会覆盖/);
  await fs.writeFile(s.file,'changed');await assert.rejects(pub.publish(s,'artist'),/待发布文件已变化/);
